@@ -74,7 +74,7 @@ class Main {
             /* to test,
              * - comment CRUD example
              * - uncomment this example
-             * - uncomment two statements "throw new SQLException("exception check");" in VacancyService.deleteVacancy() method
+             * - uncomment statement "throw new SQLException("exception check");" in VacancyService.deleteVacancy() method
              * - also comment conn.commit(); in VacancyService.deleteVacancy() method
              * ..all that because someone didn't learn to do tests properly yet.(
             */
