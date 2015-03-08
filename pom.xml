@@ -39,12 +39,23 @@
             <artifactId>hibernate-core</artifactId>
             <version>4.3.7.Final</version>
             <type>jar</type>
+            <exclusions>
+                <exclusion>
+                    <groupId>antlr</groupId>
+                    <artifactId>antlr</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
             <version>9.3-1102-jdbc41</version>
+        </dependency>
+        <dependency>
+            <groupId>antlr</groupId>
+            <artifactId>antlr</artifactId>
+            <version>2.7.7</version>
         </dependency>
     </dependencies> 
 

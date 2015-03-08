@@ -1,2 +1,6 @@
 *.class
 ./target/*
+
+# netbeans project files
+nbactions.xml
+nb-configuration.xml
