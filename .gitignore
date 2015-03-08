@@ -1,5 +1,5 @@
 *.class
-./target/*
+/target
 
 # netbeans project files
 nbactions.xml

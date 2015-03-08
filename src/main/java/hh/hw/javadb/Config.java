@@ -5,14 +5,21 @@ import java.sql.SQLException;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 import org.postgresql.ds.PGSimpleDataSource;
-//import org.hibernate.service.ServiceRegistry;
-//import org.hibernate.service.ServiceRegistryBuilder;
 
 public class Config {
-    // should also change properties in hibernate.properties
     private static final String url = "jdbc:postgresql:hh_hw_javadb";
     private static final String username = "neko";
     private static final String password = "1u1z";    
+    
+    private static final String dialect = "org.hibernate.dialect.PostgreSQL9Dialect";  
+    private static final String driver = "org.postgresql.Driver";  
+    private static final String context = "thread";  
+    private static final String mappings = "true";  
+    private static final String showSql = "false"; 
+    private static final String formatSql = "true";  
+    private static final String generators = "true";
+    private static final String statistics = "false";
+    
     
     public static PGSimpleDataSource pgSimpleDataSource()
             throws SQLException {
@@ -26,27 +33,20 @@ public class Config {
 
     public static SessionFactory getSessionFactory() {
         Configuration configuration = new Configuration().addAnnotatedClass(Employer.class);
+        configuration.setProperty("hibernate.connection.url", url)
+                     .setProperty("hibernate.connection.username", username)
+                     .setProperty("hibernate.connection.password", password)
+                     .setProperty("hibernate.dialect", dialect)
+                     .setProperty("hibernate.connection.driver_class", driver)
+                     .setProperty("hibernate.current_session_context_class", context)
+                     .setProperty("hibernate.id.new_generator_mappings", mappings)
+                     .setProperty("hibernate.show_sql", showSql)
+                     .setProperty("hibernate.format_sql", formatSql)
+                     .setProperty("hibernate.id.new_generator_mappings", generators)
+                     .setProperty("hibernate.generate_statistics", statistics)
+                ;
+        
         return configuration.buildSessionFactory();
-        
-//        configuration.configure();
-//        configuration.setProperty("hibernate.dialect", "org.hibernate.dialect.PostgreSQLDialect");
-//        configuration.setProperty("hibernate.connection.driver_class", "org.postgresql.Driver");
-//        configuration.setProperty("hibernate.connection.url", "jdbc:postgresql://localhost/employers");
-//        configuration.setProperty("hibernate.connection.username", username);        
-//        configuration.setProperty("hibernate.connection.password", password);        
-//        configuration.setProperty("hibernate.id.new_generator_mappings", "true");
-//         ServiceRegistry serviceRegistry = new ServiceRegistryBuilder()
-//                .applySettings(configuration.getProperties())
-//                .buildServiceRegistry();
-//        return configuration.buildSessionFactory(serviceRegistry);
-        
-    }
-    
-//    public static Connection getConnection() throws SQLException, IOException {
-
-//        String drivers = "org.postgresql.Driver"; 
-//        System.setProperty("jdbc.drivers", drivers);
-//        return DriverManager.getConnection(url, username, password);
-//    }    
+    }   
 }
 

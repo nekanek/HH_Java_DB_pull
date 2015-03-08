@@ -9,42 +9,39 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
-//import org.hibernate.annotations.GenericGenerator;
 
 @Entity
 @Table(name = "employers")
 public class Employer {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-//    @GeneratedValue(generator="increment")
-//    @GenericGenerator(name="increment", strategy = "increment")
+    @GeneratedValue(strategy = GenerationType.IDENTITY) 
     @Column(name = "employer_id")
-    private int id;
+    private Integer id;
 
-    @Column(name = "title")
+    @Column(name = "title", unique=true)
     private String title;
 
     @Column(name = "registration_date", nullable = false, updatable = false)
     @Temporal(TemporalType.TIMESTAMP)
     private Date regDate;
-
-    public Employer() {
-        this.id = -1; // @QQ is there any other way except this and = null?/
+    
+    Employer() {
+        this.id = null; 
         this.regDate = new Date();
     }
 
-    public Employer(int id, String title) {
+    Employer(Integer id, String title) {
         this.id = id;
         this.title = title;
         this.regDate = new Date();
     }
 
     public Employer(String title) {
-        this(-1, title);
+        this(null, title);
     }
 
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 
@@ -56,17 +53,8 @@ public class Employer {
         return regDate;
     }
 
-    public void setId(int id) {
-        this.id = id;
-    }
-
     public void setTitle(String title) {
         this.title = title;
-    }
-
-    public void setRegDate(Date regDate) {
-        System.out.println("Registration date cannot b changed");
-//        this.regDate = regDate;
     }
 
     @Override
@@ -76,7 +64,7 @@ public class Employer {
 
     @Override
     public int hashCode() {
-        return this.getId();
+        return getId() + (int) getRegDate().getTime() + getTitle().length();
     }
 
     @Override
@@ -84,7 +72,7 @@ public class Employer {
         if (obj == null) return false;
         if (getClass() != obj.getClass()) return false;
         final Employer other = (Employer) obj;
-        return this.id == other.id;
+        return id.equals(other.getId()) && title.equals(other.getTitle()) && regDate.equals(other.getRegDate());
     }
 
 }

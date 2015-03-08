@@ -135,14 +135,13 @@ public class VacancyService implements VacancyDAO {
             }
             // uncomment this for exception test
 //            throw new SQLException("exception check"); 
-            // comment this for exception test
             conn.commit();
-        } catch (Exception e) {
+        } catch (SQLException e) {
             System.out.println("catch in vcanc");
             conn.rollback();
             System.out.println("vacancies in db: " + getAllVacancies()); 
             System.out.println(e.getMessage());
-            throw new Exception("exception was catched in vacancies");
+            throw new SQLException("exception was catched in vacancies");
         }
         finally { conn.close();}
     }

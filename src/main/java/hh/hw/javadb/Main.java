@@ -17,9 +17,9 @@ class Main {
 
             // Starting JDBC connection
             final PGSimpleDataSource dataSource = Config.pgSimpleDataSource();
-            VacancyDAO vacancyServ = new VacancyService(dataSource);                  
+            VacancyService vacancyServ = new VacancyService(dataSource);                  
             // clear both tables
-            employerService.dropEmployersTable(vacancyServ);
+            employerService.clearEmployersTable(vacancyServ);
             
             // CRUD example
             // Create in Hibernate
@@ -70,6 +70,8 @@ class Main {
             employerService.deleteEmployer(e1, vacancyServ);
             System.out.println("employers in db: " + employerService.getAllEmployers());
             
+            System.out.println("Some fun stats:");
+            System.out.println(sessionFactory.getStatistics());
             // Testing unroll of commits in transactions
             /* to test,
              * - comment CRUD example
@@ -101,7 +103,7 @@ class Main {
     }
 
     private static EmployerService getEmployerService(final SessionFactory sessionFactory) {
-        return new EmployerService(sessionFactory);
+        return new EmployerService(sessionFactory, new EmployerDAO(sessionFactory));
     }
 }
 

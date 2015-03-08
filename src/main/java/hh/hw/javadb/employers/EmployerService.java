@@ -1,127 +1,90 @@
 package hh.hw.javadb.employers;
 
 import hh.hw.javadb.vacancies.VacancyDAO;
+import hh.hw.javadb.vacancies.VacancyService;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
-import org.hibernate.HibernateException;
+import java.util.Optional;
+import java.util.function.Supplier;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 
-public class EmployerService implements EmployerDAO {
+public class EmployerService {
 
     private final SessionFactory sessionFactory;
+    private final EmployerDAO employerDAO;
 
-    public EmployerService(final SessionFactory sessionFactory) {
+    public EmployerService(final SessionFactory sessionFactory, EmployerDAO employerDAO) {
         this.sessionFactory = sessionFactory;
+        this.employerDAO = employerDAO;
     }
-    
-    // instead of Dropping just deletes all rows in table
-    @Override
-    public void dropEmployersTable(VacancyDAO vacancyServ) throws SQLException {
-        List<Employer> empls = getAllEmployers();
-        for (Employer e : empls) {
+
+    public void clearEmployersTable(VacancyService vacancyServ) throws SQLException {
+        List<Employer> employers = getAllEmployers();
+        for (Employer e : employers) {
             deleteEmployer(e, vacancyServ);
         }
     }
-    
-    @Override
+
     public void addEmployer(Employer employer) throws SQLException {
-        Session session = null;
-        Transaction tx = null;
-        try {
-            session = sessionFactory.openSession();
-            tx = session.beginTransaction();
-            session.save(employer);
-            tx.commit();
-        } catch (Exception e) {
-            if (tx != null) {
-                tx.rollback();
-            }
-            System.out.println(e.getMessage());
-        } finally {
-            if (session != null && session.isOpen()) {
-                session.close();
-            }
-        }
+        inTransaction(() -> employerDAO.addEmployer(employer));
     }
 
-    @Override
     public void updateEmployer(Employer employer) throws SQLException {
-        Session session = null;
-        Transaction tx = null;
-        try {
-            session = sessionFactory.openSession();
-            tx = session.beginTransaction();
-            session.update(employer);
-            tx.commit();
-        } catch (Exception e) {
-            if (tx != null) {
-                tx.rollback();
-            }
-            System.out.println(e.getMessage());
-        } finally {
-            if (session != null && session.isOpen()) {
-                session.close();
-            }
-        }
+        inTransaction(() -> employerDAO.updateEmployer(employer));
     }
 
-    @Override
-    public Employer getEmployerById(Long id) throws SQLException {
-        Session session = null;
-        Employer stud = null;
-        try {
-            session = sessionFactory.openSession();
-            stud = (Employer) session.load(Employer.class, id);
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-        } finally {
-            if (session != null && session.isOpen()) {
-                session.close();
-            }
-        }
-        return stud;
+    public Employer getEmployerById(Integer id) throws SQLException {
+        return inTransaction(() -> employerDAO.getEmployerById(id));
     }
 
-    @Override
-    public List getAllEmployers() throws SQLException {
-        Session session = null;
-        List<Employer> empls = new ArrayList<>();
-        try {
-            session = sessionFactory.openSession();
-            empls = session.createCriteria(Employer.class).list();
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-        } finally {
-            if (session != null && session.isOpen()) {
-                session.close();
-            }
-        }
-        return empls;
+    public List<Employer> getAllEmployers() throws SQLException  {
+        return inTransaction(() -> employerDAO.getAllEmployers());
     }
 
-    @Override
     public void deleteEmployer(Employer employer, VacancyDAO vacancyServ) throws SQLException {
-        Session session = null;
-        Transaction tx = null;
+        final Session session = sessionFactory.openSession();
         try {
-            session = sessionFactory.openSession();
-            tx = session.beginTransaction();
-            session.delete(employer);
-            vacancyServ.deleteAllEmployersVacancies(employer);
-            // commits only after all vacancies were successfully deleted, otherwise rolls back
-            tx.commit();
-        } catch (Exception e) {
-            System.out.println("catch in empl");
-            if (tx != null) tx.rollback();
-            System.out.println("employers in db: " + getAllEmployers());
-            System.out.println(e.getMessage());
-        } finally {
-            if (session != null && session.isOpen()) {
-                session.close();
+            final Transaction tx = session.beginTransaction();
+            try {
+                session.delete(employer);
+                vacancyServ.deleteAllEmployersVacancies(employer);                
+                tx.commit();
+            } catch (RuntimeException e) {
+                tx.rollback();
+                throw e;
             }
+        } finally {
+            session.close();
         }
+    }
+
+    private <T> T inTransaction(final Supplier<T> supplier) throws SQLException {
+        final Optional<Transaction> transaction = beginTransaction();
+        try {
+            final T result = supplier.get();
+            transaction.ifPresent(Transaction::commit);
+            return result;
+        } catch (RuntimeException e) {
+            transaction.ifPresent(Transaction::rollback);
+            throw e;
+        }
+    }
+
+    private void inTransaction(final Runnable runnable) throws SQLException {
+        inTransaction(() -> {
+            runnable.run();
+            return null;
+        });
+    }
+
+    private Optional<Transaction> beginTransaction() {
+        final Transaction transaction = sessionFactory.getCurrentSession().getTransaction();
+        if (!transaction.isActive()) {
+            transaction.begin();
+            return Optional.of(transaction);
+        }
+        return Optional.empty();
     }
 }
