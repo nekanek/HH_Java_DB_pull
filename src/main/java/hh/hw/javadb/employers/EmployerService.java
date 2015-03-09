@@ -1,7 +1,6 @@
 package hh.hw.javadb.employers;
 
 import hh.hw.javadb.vacancies.VacancyDAO;
-import hh.hw.javadb.vacancies.VacancyService;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
@@ -20,10 +19,10 @@ public class EmployerService {
         this.employerDAO = employerDAO;
     }
 
-    public void clearEmployersTable(VacancyService vacancyServ) throws SQLException {
+    public void clearEmployersTable(VacancyDAO vacancyDAO) throws SQLException {
         List<Employer> employers = getAllEmployers();
         for (Employer e : employers) {
-            deleteEmployer(e, vacancyServ);
+            deleteEmployer(e, vacancyDAO);
         }
     }
 

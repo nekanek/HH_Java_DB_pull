@@ -17,9 +17,9 @@ class Main {
 
             // Starting JDBC connection
             final PGSimpleDataSource dataSource = Config.pgSimpleDataSource();
-            VacancyService vacancyServ = new VacancyService(dataSource);                  
+            VacancyDAO vacancyDAO = new VacancyDAOImpl(dataSource);                  
             // clear both tables
-            employerService.clearEmployersTable(vacancyServ);
+            employerService.clearEmployersTable(vacancyDAO);
             
             // CRUD example
             // Create in Hibernate
@@ -38,36 +38,36 @@ class Main {
 
             // Create in JDBC
             Vacancy coolGuy = new Vacancy("Awesome job", e2.getId());
-            vacancyServ.addVacancy(coolGuy);
+            vacancyDAO.addVacancy(coolGuy);
             Vacancy aiBuilder = new Vacancy("AI construct developer", e1.getId());
-            vacancyServ.addVacancy(aiBuilder);
+            vacancyDAO.addVacancy(aiBuilder);
             Vacancy aiEngineer = new Vacancy("AI construct engineer", e1.getId());
-            vacancyServ.addVacancy(aiEngineer);
+            vacancyDAO.addVacancy(aiEngineer);
             System.out.println("3 vacancies created");
-            System.out.println("vacancies in db: " + vacancyServ.getAllVacancies());
+            System.out.println("vacancies in db: " + vacancyDAO.getAllVacancies());
             
             // Update in JDBC
             coolGuy.setTitle("Not so awesome job");
-            vacancyServ.updateVacancy(coolGuy);
+            vacancyDAO.updateVacancy(coolGuy);
             System.out.println("Changed vacancy title");
-            System.out.println("vacancies in db: " + vacancyServ.getAllVacancies());            
+            System.out.println("vacancies in db: " + vacancyDAO.getAllVacancies());            
             
             // Delete in Hibernate
             // Calls VacancyService to delete all vacancies added by this employer
-            employerService.deleteEmployer(e2, vacancyServ);
+            employerService.deleteEmployer(e2, vacancyDAO);
             System.out.println("deleted employer " + e2.getId() + " and all corresponfing vacancies");
             System.out.println("employers in db: " + employerService.getAllEmployers());
-            System.out.println("vacancies in db: " + vacancyServ.getAllVacancies()); 
+            System.out.println("vacancies in db: " + vacancyDAO.getAllVacancies()); 
 
             // Delete in JDBC
-            vacancyServ.deleteAllEmployersVacancies(e1);
+            vacancyDAO.deleteAllEmployersVacancies(e1);
             System.out.println("deleted all vacancies by employer with id " + e1.getId());
-            System.out.println("vacancies in db: " + vacancyServ.getAllVacancies());
+            System.out.println("vacancies in db: " + vacancyDAO.getAllVacancies());
             System.out.println("employers in db: " + employerService.getAllEmployers());
             
             // cleaning up
             System.out.println("deleted employer with id " + e1.getId());
-            employerService.deleteEmployer(e1, vacancyServ);
+            employerService.deleteEmployer(e1, vacancyDAO);
             System.out.println("employers in db: " + employerService.getAllEmployers());
             
             System.out.println("Some fun stats:");
@@ -84,14 +84,14 @@ class Main {
 //            Employer e3 = new Employer("AI Black Box");
 //            employerService.addEmployer(e3);
 //            Vacancy jonny = new Vacancy("Data carrier", e3.getId());
-//            vacancyServ.addVacancy(jonny);
+//            vacancyDAO.addVacancy(jonny);
 //            Vacancy dolphin = new Vacancy("AI construct friend", e3.getId());
-//            vacancyServ.addVacancy(dolphin);   
+//            vacancyDAO.addVacancy(dolphin);   
 //            
 //            // should see db with employer and two vacancies
-//            employerService.deleteEmployer(e3, vacancyServ);
+//            employerService.deleteEmployer(e3, vacancyDAO);
 //            System.out.println("tried to delete employer with id " + e3.getId() + " (vacancies and employer should still b present in db)");
-//            System.out.println("vacancies in db: " + vacancyServ.getAllVacancies());
+//            System.out.println("vacancies in db: " + vacancyDAO.getAllVacancies());
 //            System.out.println("employers in db: " + employerService.getAllEmployers());
         } finally {
             sessionFactory.close();
@@ -103,7 +103,7 @@ class Main {
     }
 
     private static EmployerService getEmployerService(final SessionFactory sessionFactory) {
-        return new EmployerService(sessionFactory, new EmployerDAO(sessionFactory));
+        return new EmployerService(sessionFactory, new EmployerDAOImpl(sessionFactory));
     }
 }
 

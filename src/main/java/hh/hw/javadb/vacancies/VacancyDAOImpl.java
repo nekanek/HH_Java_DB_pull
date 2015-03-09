@@ -10,11 +10,12 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.sql.DataSource;
 
-public class VacancyService implements VacancyDAO {
+
+public class VacancyDAOImpl implements VacancyDAO {
 
     private final DataSource dataSource;
 
-    public VacancyService(DataSource dataSource) {
+    public VacancyDAOImpl(DataSource dataSource) {
         this.dataSource = dataSource;
     }
 
