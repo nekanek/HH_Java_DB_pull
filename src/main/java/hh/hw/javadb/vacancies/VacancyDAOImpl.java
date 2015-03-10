@@ -1,5 +1,6 @@
 package hh.hw.javadb.vacancies;
 
+import com.google.inject.Inject;
 import hh.hw.javadb.employers.Employer;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -14,7 +15,8 @@ import javax.sql.DataSource;
 public class VacancyDAOImpl implements VacancyDAO {
 
     private final DataSource dataSource;
-
+    
+    @Inject
     public VacancyDAOImpl(DataSource dataSource) {
         this.dataSource = dataSource;
     }

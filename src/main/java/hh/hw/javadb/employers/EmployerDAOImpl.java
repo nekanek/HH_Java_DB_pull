@@ -1,5 +1,6 @@
 package hh.hw.javadb.employers;
 
+import com.google.inject.Inject;
 import java.util.List;
 import static java.util.Objects.requireNonNull;
 import org.hibernate.Session;
@@ -9,6 +10,7 @@ public class EmployerDAOImpl implements EmployerDAO {
     
     private final SessionFactory sessionFactory;
     
+    @Inject
     public EmployerDAOImpl(final SessionFactory sessionFactory) {
         this.sessionFactory = requireNonNull(sessionFactory);
     }

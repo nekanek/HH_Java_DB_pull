@@ -1,5 +1,6 @@
 package hh.hw.javadb.employers;
 
+import com.google.inject.Inject;
 import hh.hw.javadb.vacancies.VacancyDAO;
 import java.sql.SQLException;
 import java.util.List;
@@ -14,6 +15,7 @@ public class EmployerService {
     private final SessionFactory sessionFactory;
     private final EmployerDAO employerDAO;
 
+    @Inject
     public EmployerService(final SessionFactory sessionFactory, EmployerDAO employerDAO) {
         this.sessionFactory = sessionFactory;
         this.employerDAO = employerDAO;
