@@ -11,7 +11,7 @@ public class VacancyService {
     private final VacancyDAO vacancyDAO;
 
     @Inject
-    public VacancyService(VacancyDAO vacancyDAO) {
+    VacancyService(VacancyDAO vacancyDAO) {
         this.vacancyDAO = vacancyDAO;
     }
 

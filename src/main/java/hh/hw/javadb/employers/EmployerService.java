@@ -1,7 +1,6 @@
 package hh.hw.javadb.employers;
 
 import com.google.inject.Inject;
-import hh.hw.javadb.vacancies.VacancyDAO;
 import hh.hw.javadb.vacancies.VacancyService;
 import java.sql.SQLException;
 import java.util.List;
@@ -21,11 +20,12 @@ public class EmployerService {
     private static final Logger log = LoggerFactory.getLogger(EmployerService.class);
 
     @Inject
-    public EmployerService(final SessionFactory sessionFactory, EmployerDAO employerDAO) {
+    EmployerService(final SessionFactory sessionFactory, EmployerDAO employerDAO) {
         this.sessionFactory = sessionFactory;
         this.employerDAO = employerDAO;
     }
 
+    @Inject
     public void clearEmployersTable(VacancyService vacancyService) throws SQLException {
         log.info("Tables cleanup started");
         List<Employer> employers = getAllEmployers();

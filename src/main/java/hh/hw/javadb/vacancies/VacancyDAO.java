@@ -4,7 +4,7 @@ import hh.hw.javadb.employers.Employer;
 import java.sql.SQLException;
 import java.util.List;
 
-public interface VacancyDAO {
+interface VacancyDAO {
     public void addVacancy(Vacancy vacancy) throws SQLException;
 
     public void updateVacancy(Vacancy vacancy) throws SQLException;
