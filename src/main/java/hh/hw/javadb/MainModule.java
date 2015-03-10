@@ -19,13 +19,13 @@ public class MainModule extends AbstractModule {
     @Provides
     @Singleton
     DataSource provideDataSource() throws SQLException {  
-      return Config.pgSimpleDataSource();
+        return Config.pgSimpleDataSource();
     }
     
     @Provides
     @Singleton
     SessionFactory provideSessionFactory() {  
-      return Config.getSessionFactory();
+        return Config.getSessionFactory();
     }    
 
 }

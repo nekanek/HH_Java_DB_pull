@@ -2,6 +2,7 @@ package hh.hw.javadb.vacancies;
 
 import com.google.inject.Inject;
 import hh.hw.javadb.employers.Employer;
+import hh.hw.javadb.employers.EmployerService;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -10,11 +11,14 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import javax.sql.DataSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 public class VacancyDAOImpl implements VacancyDAO {
 
     private final DataSource dataSource;
+    private static final Logger log = LoggerFactory.getLogger(EmployerService.class);
     
     @Inject
     public VacancyDAOImpl(DataSource dataSource) {
@@ -23,6 +27,7 @@ public class VacancyDAOImpl implements VacancyDAO {
 
     @Override
     public void addVacancy(Vacancy vacancy) throws SQLException {
+        log.info("Create vacancy {} (JDBC)", vacancy);
         if (vacancy.getId() > 0) {
             throw new IllegalArgumentException("cannot add vacancy with already assigned id");
         }
@@ -44,15 +49,14 @@ public class VacancyDAOImpl implements VacancyDAO {
             conn.commit();
         } catch (SQLException e) {
             conn.rollback();
-            System.out.println(e.getErrorCode());
-            System.out.println(e.getMessage());
-            throw new RuntimeException("failed to add vacancy " + vacancy);
+            throw new RuntimeException("failed to add vacancy " + vacancy, e);
         }
         finally { conn.close();}
     }
 
     @Override
     public void updateVacancy(Vacancy vacancy) throws SQLException {
+        log.info("Update vacancy {} (JDBC)", vacancy);
         if (vacancy.getId() <= 0) {
             throw new IllegalArgumentException("cannot update vacancy without id");
         }
@@ -70,14 +74,14 @@ public class VacancyDAOImpl implements VacancyDAO {
             conn.commit();
         } catch (SQLException e) {
             conn.rollback();
-            System.out.println(e.getMessage());
-            throw new RuntimeException("failed to update vacancy");
+            throw new RuntimeException("failed to update vacancy", e);
         }
         finally { conn.close();}
     }
 
     @Override
     public List getAllVacancies() throws SQLException {
+        log.info("Get all vacancies (JDBC)");
         try (final Connection connection = dataSource.getConnection()) {
             try (final Statement statement = connection.createStatement()) {
                 final String query = "SELECT * FROM vacancies";
@@ -102,6 +106,7 @@ public class VacancyDAOImpl implements VacancyDAO {
 
     @Override
     public List getAllEmployersVacancies(Employer employer) throws SQLException {
+        log.info("Get vacancies linked to employer {} (JDBC)", employer);
         try (final Connection conn = dataSource.getConnection()) {
             final String query = "SELECT * FROM vacancies WHERE employer_id = ?";
             try (final PreparedStatement statement = conn.prepareStatement(query)) {
@@ -121,13 +126,14 @@ public class VacancyDAOImpl implements VacancyDAO {
                 }
             }
         } catch (SQLException e) {
-            throw new RuntimeException("failed to get vacancies for one employer", e);
+            throw new RuntimeException(e);
         }
 
     }
 
     @Override
     public void deleteVacancy(Vacancy vacancy) throws SQLException {
+        log.info("Delete vacancy {} (JDBC)", vacancy);
         Connection conn = dataSource.getConnection();
         conn.setAutoCommit(false);        
         try {
@@ -136,26 +142,21 @@ public class VacancyDAOImpl implements VacancyDAO {
                 statement.setInt(1, vacancy.getId());
                 statement.executeUpdate();
             }
-            // uncomment this for exception test
-//            throw new SQLException("exception check"); 
             conn.commit();
         } catch (SQLException e) {
-            System.out.println("catch in vcanc");
             conn.rollback();
-            System.out.println("vacancies in db: " + getAllVacancies()); 
-            System.out.println(e.getMessage());
-            throw new SQLException("exception was catched in vacancies");
+            throw new SQLException("Failed to delete vacancy " + vacancy, e);
         }
         finally { conn.close();}
     }
 
     @Override
     public void deleteAllEmployersVacancies(Employer employer) throws SQLException {
+        log.info("Delete vacancies of employer {} (JDBC)", employer);
         List<Vacancy> vacancies = getAllEmployersVacancies(employer);
         for (Vacancy v : vacancies) {
             deleteVacancy(v);
         }
-
     }
 
 }

@@ -9,11 +9,15 @@ import java.util.function.Supplier;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class EmployerService {
 
     private final SessionFactory sessionFactory;
     private final EmployerDAO employerDAO;
+    
+    private static final Logger log = LoggerFactory.getLogger(EmployerService.class);
 
     @Inject
     public EmployerService(final SessionFactory sessionFactory, EmployerDAO employerDAO) {
@@ -22,6 +26,7 @@ public class EmployerService {
     }
 
     public void clearEmployersTable(VacancyDAO vacancyDAO) throws SQLException {
+        log.info("Tables cleanup started");
         List<Employer> employers = getAllEmployers();
         for (Employer e : employers) {
             deleteEmployer(e, vacancyDAO);
@@ -29,14 +34,17 @@ public class EmployerService {
     }
 
     public void addEmployer(Employer employer) throws SQLException {
+        log.info("Create employer {} (hibernate)", employer);
         inTransaction(() -> employerDAO.addEmployer(employer));
     }
 
     public void updateEmployer(Employer employer) throws SQLException {
+        log.info("Update employer {} (hibernate)", employer);
         inTransaction(() -> employerDAO.updateEmployer(employer));
     }
 
     public Employer getEmployerById(Integer id) throws SQLException {
+        log.info("Get employer with id = {} (hibernate)", id);
         return inTransaction(() -> employerDAO.getEmployerById(id));
     }
 
@@ -45,6 +53,7 @@ public class EmployerService {
     }
 
     public void deleteEmployer(Employer employer, VacancyDAO vacancyServ) throws SQLException {
+        log.info("Delete employer {} (hibernate), should also delete all vacancies linked to that employer", employer);
         final Session session = sessionFactory.openSession();
         try {
             final Transaction tx = session.beginTransaction();
@@ -53,7 +62,9 @@ public class EmployerService {
                 vacancyServ.deleteAllEmployersVacancies(employer);                
                 tx.commit();
             } catch (RuntimeException e) {
+                // log.error("Failed to delete employer {} (hibernate)", employer, e); 
                 tx.rollback();
+                closeSessionFactory();
                 throw e;
             }
         } finally {
@@ -69,6 +80,7 @@ public class EmployerService {
             return result;
         } catch (RuntimeException e) {
             transaction.ifPresent(Transaction::rollback);
+            closeSessionFactory();
             throw e;
         }
     }
@@ -88,4 +100,9 @@ public class EmployerService {
         }
         return Optional.empty();
     }
+    
+    public void closeSessionFactory() {
+        sessionFactory.close();
+        log.info("SessionFactory closed");
+    } 
 }
