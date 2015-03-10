@@ -6,12 +6,12 @@ import static java.util.Objects.requireNonNull;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
-public class EmployerDAOImpl implements EmployerDAO {
+class EmployerDAOImpl implements EmployerDAO {
     
     private final SessionFactory sessionFactory;
     
     @Inject
-    public EmployerDAOImpl(final SessionFactory sessionFactory) {
+    EmployerDAOImpl(final SessionFactory sessionFactory) {
         this.sessionFactory = requireNonNull(sessionFactory);
     }
 

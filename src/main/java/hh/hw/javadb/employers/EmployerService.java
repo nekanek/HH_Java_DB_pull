@@ -2,6 +2,7 @@ package hh.hw.javadb.employers;
 
 import com.google.inject.Inject;
 import hh.hw.javadb.vacancies.VacancyDAO;
+import hh.hw.javadb.vacancies.VacancyService;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
@@ -25,11 +26,11 @@ public class EmployerService {
         this.employerDAO = employerDAO;
     }
 
-    public void clearEmployersTable(VacancyDAO vacancyDAO) throws SQLException {
+    public void clearEmployersTable(VacancyService vacancyService) throws SQLException {
         log.info("Tables cleanup started");
         List<Employer> employers = getAllEmployers();
         for (Employer e : employers) {
-            deleteEmployer(e, vacancyDAO);
+            deleteEmployer(e, vacancyService);
         }
     }
 
@@ -52,7 +53,7 @@ public class EmployerService {
         return inTransaction(() -> employerDAO.getAllEmployers());
     }
 
-    public void deleteEmployer(Employer employer, VacancyDAO vacancyServ) throws SQLException {
+    public void deleteEmployer(Employer employer, VacancyService vacancyServ) throws SQLException {
         log.info("Delete employer {} (hibernate), should also delete all vacancies linked to that employer", employer);
         final Session session = sessionFactory.openSession();
         try {

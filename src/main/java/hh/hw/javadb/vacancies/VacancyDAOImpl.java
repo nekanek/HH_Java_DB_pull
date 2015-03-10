@@ -15,7 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-public class VacancyDAOImpl implements VacancyDAO {
+class VacancyDAOImpl implements VacancyDAO {
 
     private final DataSource dataSource;
     private static final Logger log = LoggerFactory.getLogger(EmployerService.class);

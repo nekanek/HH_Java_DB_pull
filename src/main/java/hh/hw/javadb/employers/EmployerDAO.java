@@ -3,7 +3,7 @@ package hh.hw.javadb.employers;
 import java.util.List;
 
 
-public interface EmployerDAO {
+interface EmployerDAO {
 
     void addEmployer(Employer employer);
 
